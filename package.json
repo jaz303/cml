@@ -4,7 +4,10 @@
   "description": "Component Markup Language. It's like QML for the browser.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch-js": "watchify demo/main.js -o demo/bundle.js -dv",
+    "watch-scss": "scss --watch demo/main.scss",
+    "watch": "npm run watch-js & npm run watch-scss"
   },
   "repository": {
     "type": "git",
@@ -23,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/jaz303/cml/issues"
   },
-  "homepage": "https://github.com/jaz303/cml"
+  "homepage": "https://github.com/jaz303/cml",
+  "devDependencies": {
+    "pegjs": "~0.8.0"
+  }
 }

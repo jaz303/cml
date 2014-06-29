@@ -1,0 +1,105 @@
+{
+}
+
+//
+// Helpers
+
+_ 				= [ \t]*
+__ 				= [ \t\r\n]*
+ident_start		= [a-zA-Z_]
+ident_rest		= [a-zA-Z0-9_-]
+ident 			= $( ident_start ident_rest* )
+
+string
+    = "'" chars:string_char_single* "'" { return chars.join(''); }
+    / '"' chars:string_char_double* '"' { return chars.join(''); }
+
+string_char_single
+    = escape_char
+    / $ ( !['\\] . )
+
+string_char_double
+    = escape_char
+    / $ ( !["\\] . )
+
+escape_char
+    = "\\n"     { return "\n"; }
+    / "\\r"     { return "\r"; }
+    / "\\t"     { return "\t"; }
+    / "\\'"     { return "'"; }
+    / '\\"'     { return '"'; }
+    / '\\\\'    { return "\\"; }
+
+float
+    = $ ( [0-9]+ '.' [0-9]+ )
+
+integer
+    = $ ("0" ![0-9] )
+    / $ ( [1-9] [0-9]* )
+
+NL
+	= '\r' '\n'?
+	/ '\n'
+
+//
+// Productions
+
+TopLevel
+	= __ root:Component {
+		return root;
+	}
+
+Component
+	= type:ComponentType id:ComponentId? _ '{' __ inner:(ComponentInner*) '}' __ {
+		return {
+			nodeType: 'component',
+			type: type,
+			id: id,
+			inner: inner
+		};
+	}
+
+ComponentType
+	= $ ( ident ('.' ident)* )
+
+ComponentId
+	= '#' ident:ident {
+		return ident;
+	}
+
+Property
+	= key:ident _ ':' _ value:Expression Term {
+		return {
+			nodeType: 'property',
+			property: key,
+			value: value
+		};
+	}
+
+ComponentInner
+	= Component
+	/ Property
+
+Expression
+	= atom:Atom _ { return atom; }
+
+Atom
+	= String
+	/ Float
+	/ Integer
+
+String
+	= str:string { return str; }
+
+Float
+	= val:float { return parseFloat(val); }
+
+Integer
+	= val:integer { return parseInt(val, 10); }
+
+Term
+	= SingleTerminator+
+
+SingleTerminator
+	= NL _
+	/ ';' _
